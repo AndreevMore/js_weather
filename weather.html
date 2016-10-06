@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Weather </title>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.0.0/d3.js"></script>
+	<script src="jquery-3.1.1.min.js"></script>
+	<script src="jquery-ui.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+
+<div id="weather">
+	<div id="header">
+		<h1>Погода</h1>
+	</div>
+	
+	<div id="navbar">
+		<ul>
+			<li id="tabDay" ><a href="#today">Cегодня</a></li>
+			<li id="tabWeek"><a href="#week">5 дней</a></li>
+			<li id="tabMonth"><a href="#month">16 дней</a></li>
+		</ul>
+
+		<div id="today" class="period">
+			<h2>Сегодня</h2>
+
+			<div id="weather1">
+			    <ul>
+			        <li id="сity"></li>
+			        <li id="timeStamp"></li>
+			        <li id="сityTemp"></li>
+			        <li id="сityWind"></li>
+			        <li id="сityCloud"></li>
+			        <li id="сityPic"></li>
+			    </ul>
+			</div>
+
+		</div>
+			
+		<div id="week" class="period">
+			<h2>5 дней</h2>
+		</div>
+			
+		<div id="month" class="period">
+			<h2>16 дней</h2>
+		</div>
+	</div>	
+
+	<div id="graphic">
+		<svg id="chart"></svg>
+	</div>
+	
+</div>
+
+<script>
+	// navigation tabs
+	$( function() {
+		$( "#navbar" ).tabs();
+	} );
+	var today = new Date;
+	var todayYear = today.getUTCFullYear();	
+	var todayDay = today.getDate();
+	var todayMonth = today.getMonth();	
+
+	// url's container
+	var weatherUrls = {
+		todayUrl : "http://api.openweathermap.org/data/2.5/weather?id=706483&APPID=8b0fa85193ca7bd5828be09f3be5c7db&lang=ru",
+		weekUrl :  "http://api.openweathermap.org/data/2.5/forecast?id=706483&APPID=8b0fa85193ca7bd5828be09f3be5c7db&lang=ru",
+		monthUrl : "http://api.openweathermap.org/data/2.5/forecast/daily?id=706483&APPID&cnt=16&APPID=8b0fa85193ca7bd5828be09f3be5c7db&lang=ru"
+	}
+
+	// transform seconds to dd/mm/ yyyy
+	function dateFormat(seconds){
+		var dateFormat = new Date(seconds*1000);
+		var stringDate = dateFormat.getUTCFullYear() + "/" + (dateFormat.getMonth()+1) + "/" + dateFormat.getDate() ;
+		return stringDate
+	}
+
+	// daily weather 
+	$( "#tabDay" ).click(function() {
+		$.getJSON(weatherUrls.todayUrl, function(data) {
+			var сityElement = document.getElementById("сity"),
+				сityTempElement = document.getElementById("сityTemp"),
+				сityWindElement = document.getElementById("сityWind"),
+				сityTimeStamp = document.getElementById("timeStamp"),
+				сityCloudElement = document.getElementById("сityCloud"),
+				сityPicElement = document.getElementById("сityPic"),
+				dateFormat = new Date(data.dt*1000);
+
+				сityElement.innerHTML = "Город " + '<strong>' + data.name + '</strong>';
+				сityTemp.innerHTML = "Температура " + '<strong>' + Math.round(data.main.temp - 273.15) + '</strong>' + "t";
+				сityWind.innerHTML = "Скорость ветра " + '<strong>' + data.wind.speed + '</strong>' + " км\ч";
+				сityCloud.innerHTML = data.weather[0].description + " " + '<strong>' + data.clouds.all + '</strong>' + " %";
+				сityPicElement.innerHTML = '<img src=http://openweathermap.org/img/w/' + data.weather[0].icon + '.png>';
+				сityTimeStamp.innerHTML = dateFormat.getUTCFullYear() + "/" + (dateFormat.getMonth()+1) + "/" + dateFormat.getDate() + " " + dateFormat.getHours() + ":" + dateFormat.getMinutes();
+				$('#weather1>ul').detach().prependTo('#graphic');
+						   
+		});
+	});
+
+	// weather for 5 days  
+	$( "#tabWeek" ).click(function() {
+		$.getJSON(weatherUrls.weekUrl, function(data) {
+			let list = data.list
+			for (var i = 0; i < list.length; i++) {
+				console.log(list[i].dt_txt);
+				console.log ("температура вечером:" + Math.round(list[i].main.temp_min - 273.15))
+				console.log ("температура утром:" + Math.round(list[i].main.temp_max - 273.15))
+				// console.log(list[i].weather.icon);
+			}
+		});
+	});
+
+	// weather for 16 days  
+	$( "#tabMonth" ).click(function() {
+		$.getJSON(weatherUrls.monthUrl, function(data) {
+			let list = data.list
+			for (var i = 0; i < list.length; i++) {
+				console.log(dateFormat(list[i].dt))
+				console.log ("температура вечером:" + Math.round(list[i].temp.night- 273.15))
+				console.log ("утро температура:" + Math.round(list[i].temp.morn- 273.15))
+			}
+		});
+	});
+
+</script>
+</body>
+</html>

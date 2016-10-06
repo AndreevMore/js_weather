@@ -1,0 +1,37 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+#weather{
+	margin: 10px;
+	text-align: center;
+    border: black solid 1px;
+    border-radius: 10px;
+}
+
+#navbar li{
+ 	padding: 10px;
+	list-style-type: none;
+	background-color: black;
+	font-size: 20px;
+	
+}
+#navbar li:hover{
+	background-color: grey;
+}
+#navbar li:active{
+	background-color: red;
+	font-size: 20px;
+	text-decoration: none;
+}
+#navbar a{
+	text-decoration: none;
+	color: white;
+}
+#weather1{
+	color: white;
+}
+#chart{
+	/*height: 500px;*/
+}	
