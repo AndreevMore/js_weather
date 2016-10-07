@@ -2,7 +2,7 @@
   margin: 0;
   padding: 0;
 }
-
+ /*______________________________*/
 #weather{
 	margin: 10px;
 	text-align: center;
@@ -32,6 +32,18 @@
 #weather1{
 	color: white;
 }
+
+ /*______________________________*/
 #chart{
-	/*height: 500px;*/
+	height: 400px;
+	width: 500px;
 }	
+  .axis path, .axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+  }
+
+  .bar {
+    fill: steelblue;
+  }
