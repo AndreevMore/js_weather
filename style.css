@@ -2,20 +2,32 @@
   margin: 0;
   padding: 0;
 }
+
  /*______________________________*/
 #weather{
-	margin: 10px;
 	text-align: center;
     border: black solid 1px;
     border-radius: 10px;
+    width: 600px;
+     height: 500px;
+	margin: auto;    
+	margin-top: 10px;
+	background-color: #eee;
 }
 
-#navbar li{
- 	padding: 10px;
+li {
 	list-style-type: none;
+}
+#navbar li{
+    height: 40px;
+    line-height: 2;
+	vertical-align: middle;
 	background-color: black;
 	font-size: 20px;
-	
+	text-decoration: none;
+    display: inline-block;
+    width: 28%;
+    border-radius: 5px;
 }
 #navbar li:hover{
 	background-color: grey;
@@ -23,7 +35,6 @@
 #navbar li:active{
 	background-color: red;
 	font-size: 20px;
-	text-decoration: none;
 }
 #navbar a{
 	text-decoration: none;
@@ -32,18 +43,78 @@
 #weather1{
 	color: white;
 }
-
+#header{
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+#navbar ul,
+#navbar h2,
+#dailyList ul {
+	margin-bottom: 10px;
+}
+#dailyList ul li{
+	    background-color: #eee;
+	    display: block;
+	    text-align: center;
+	    margin: 0 auto; 
+	    width: 90%;
+}
+.link a {
+ display: block; /* Ссылка как блочный элемент */
+ text-align: center; /* Выравнивание по центру */
+ height: 100%; /* Высота на весь слой */
+}
  /*______________________________*/
 #chart{
-	height: 400px;
-	width: 500px;
+	// height: 500px;
+	// width: 500%;
 }	
-  .axis path, .axis line {
-    fill: none;
-    stroke: #000;
-    shape-rendering: crispEdges;
-  }
+.axis path, .axis line {
+	fill: none;
+	stroke: #000;
+	shape-rendering: crispEdges;
+}
 
-  .bar {
-    fill: steelblue;
-  }
+svg{
+	// margin: 30px;
+}
+.n img{
+	display: block;
+	margin: 0 auto;
+
+}
+
+
+
+ /*______________________________*/
+
+.d3-tip {
+	line-height: 1;
+	font-weight: bold;
+	padding: 12px;
+	background: rgba(0, 0, 0, 0.8);
+	color: #fff;
+	border-radius: 2px;
+}
+
+/* Creates a small triangle extender for the tooltip */
+.d3-tip:after {
+	box-sizing: border-box;
+	display: inline;
+	font-size: 10px;
+	width: 100%;
+	line-height: 1;
+	color: rgba(0, 0, 0, 0.8);
+	content: "\25BC";
+	position: absolute;
+	text-align: center;
+}
+
+/* Style northward tooltips differently */
+.d3-tip.n:after {
+	margin: -1px 0 0 0;
+	top: 100%;
+	left: 0;
+}
+
+ /*______________________________*/

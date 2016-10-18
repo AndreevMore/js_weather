@@ -4,6 +4,7 @@
 	<meta charset="UTF-8">
 	<title>Weather </title>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.10/d3.js"></script>
+	<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
 	<script src="jquery-3.1.1.min.js"></script>
 	<script src="jquery-ui.min.js"></script>
 	<link rel="stylesheet" type="text/css" href="style.css">
@@ -11,54 +12,49 @@
 <body>
 
 <div id="weather">
+
 	<div id="header">
 		<h1>Погода</h1>
 	</div>
 	
 	<div id="navbar">
 		<ul>
-			<li id="tabDay" ><a href="#today">Cегодня</a></li>
-			<li id="tabWeek"><a href="#week">5 дней</a></li>
-			<li id="tabMonth"><a href="#month">16 дней</a></li>
+			<li class="link" id="tabDay"><a href="#today">Cегодня</a></li>
+			<li class="link" id="tabWeek"><a href="#week">5 дней</a></li>
+			<li class="link" id="tabMonth"><a href="#month">16 дней</a></li>
 		</ul>
 
 		<div id="today" class="period">
 			<h2>Сегодня</h2>
-
-			<div id="weather1">
-			    <ul>
-			        <li id="сity"></li>
-			        <li id="timeStamp"></li>
-			        <li id="сityTemp"></li>
-			        <li id="сityWind"></li>
-			        <li id="сityCloud"></li>
-			        <li id="сityPic"></li>
-			    </ul>
-			</div>
-
+			<div id="dailyList"></div>
 		</div>
 			
 		<div id="week" class="period">
 			<h2>5 дней</h2>
+			<svg class="chartw"></svg>
 		</div>
 			
 		<div id="month" class="period">
 			<h2>16 дней</h2>
+			<svg class="chartm"></svg>
 		</div>
 	</div>	
 
-	<div id="graphic">
-		<svg id="chart"></svg>
-	</div>
-	
 </div>
 
 <script>
-	// navigation tabs
+// круги увеличивающиеся
+// вторая линия
+// https://xakep.ru/2015/04/18/195-d3-js/
+// http://frontender.info/vvedenie-v-djs/
+// https://habrahabr.ru/company/datalaboratory/blog/217905/
+// http://serganbus.github.io/d3tutorials/drawing_svgs.html
+// https://habrahabr.ru/post/312920/
+
+	// nav bar tabs
 	$( function() {
 		$( "#navbar" ).tabs();
 	} );
-// ______________________________
 
 	// url's container
 	var weatherUrls = {
@@ -67,94 +63,58 @@
 		monthUrl : "http://api.openweathermap.org/data/2.5/forecast/daily?id=706483&APPID&cnt=16&APPID=8b0fa85193ca7bd5828be09f3be5c7db&lang=ru"
 	}
 
-	// transform seconds to dd/mm/ yyyy
-	function dateFormat(seconds){
-		var dateFormat = new Date(seconds*1000);
-		var stringDate = dateFormat.getUTCFullYear() + "/" + (dateFormat.getMonth()+1) + "/" + dateFormat.getDate() ;
-		return stringDate
-	}
-
 	// daily weather 
 	$( "#tabDay" ).click(function() {
 		$.getJSON(weatherUrls.todayUrl, function(data) {
-			var сityElement = document.getElementById("сity"),
-				сityTempElement = document.getElementById("сityTemp"),
-				сityWindElement = document.getElementById("сityWind"),
-				сityTimeStamp = document.getElementById("timeStamp"),
-				сityCloudElement = document.getElementById("сityCloud"),
-				сityPicElement = document.getElementById("сityPic"),
-				dateFormat = new Date(data.dt*1000);
+			var dailyList = document.getElementById('dailyList'),
+				dateFormat = new Date(data.dt*1000),
+				ul=document.createElement('ul'),
+				str="";
+				dailyList.innerHTML='',
+				dailyList.appendChild(ul);
 
-				сityElement.innerHTML = "Город " + '<strong>' + data.name + '</strong>';
-				сityTemp.innerHTML = "Температура " + '<strong>' + Math.round(data.main.temp - 273.15) + '</strong>' + "t";
-				сityWind.innerHTML = "Скорость ветра " + '<strong>' + data.wind.speed + '</strong>' + " км\ч";
-				сityCloud.innerHTML = data.weather[0].description + " " + '<strong>' + data.clouds.all + '</strong>' + " %";
-				сityPicElement.innerHTML = '<img src=http://openweathermap.org/img/w/' + data.weather[0].icon + '.png>';
-				сityTimeStamp.innerHTML = dateFormat.getUTCFullYear() + "/" + (dateFormat.getMonth()+1) + "/" + dateFormat.getDate() + " " + dateFormat.getHours() + ":" + dateFormat.getMinutes();
-				$('#weather1>ul').detach().prependTo('#graphic');
-						   
+		        str += "<li>Город <strong>" + data.name + "</strong></li>";
+		      	str += "<li>" + dateFormat.getUTCFullYear() + "/" + (dateFormat.getMonth()+1) + "/" + dateFormat.getDate() + " " + dateFormat.getHours() + ':' + dateFormat.getMinutes() +"</li>";
+ 				str += "<li> Температура <strong>" + Math.round(data.main.temp - 273.15) + "t </strong>  </li>";
+		        str += "<li> Скорость ветра <strong>" + data.wind.speed + "</strong> км\/ч</li>";
+	        	str += "<li>" + data.weather[0].description + " <strong>" + data.clouds.all + "</strong> %</li>";
+		      	str += "<li> <img src=http://openweathermap.org/img/w/" + data.weather[0].icon + ".png></li>";
+		        ul.insertAdjacentHTML("afterbegin", str);
+
 		});
 	});
 
 	// weather for 5 days  
 	$( "#tabWeek" ).click(function() {
 		$.getJSON(weatherUrls.weekUrl, function(data) {
-			let list = data.list
-			for (var i = 0; i < list.length; i++) {
-				console.log(list[i].dt_txt);
-				console.log ("температура вечером:" + Math.round(list[i].main.temp_min - 273.15))
-				console.log ("температура утром:" + Math.round(list[i].main.temp_max - 273.15))
-				// console.log(list[i].weather.icon);
-			}
-		});
-	});
-
-	// weather for 16 days  
-	$( "#tabMonth" ).click(function() {
-		$.getJSON(weatherUrls.monthUrl, function(data) {
 			
-			var list = data.list
-			
-			for (var i = 0; i < list.length; i++) {
-				console.log(dateFormat(list[i].dt))
-				console.log ("температура вечером:" + Math.round(list[i].temp.night- 273.15))
-				console.log ("день температура:" + Math.round(list[i].temp.day- 273.15))
-			}
+			var data = data.list;
 
-
-// ________________________________________________________________________
-
-			var data = list;
-
-			var margin = {top: 40, right: 40, bottom: 40, left:40},
-			    width = 400,
-			    height = 300;
+			var margin = {top: 20, right: 20, bottom: 20, left:20},
+ 				width = 500 - margin.left - margin.right,
+			    height = 300 - margin.top - margin.bottom;
 
 			var x = d3.time.scale()
 			    .range([0, width])
 			  	.domain(d3.extent(data, function(d) { return new Date(d.dt*1000 )}));
 
-
-			var domain = d3.extent(data, function(d) { return (d.temp.day - 273.15) });
+			var domain = d3.extent(data, function(d) { return (d.main.temp_max - 273.15) });
 			
 				domain[0]=domain[0] - 10;
 				domain[1]=domain[1] + 10;
-
-			console.log(domain)
 
 			var y = d3.scale.linear()
 			    .range([height, 0])
 			  	.domain(domain);
 
-
 			//orient for draw x-line
 			var xAxis = d3.svg.axis()
 			    .scale(x)
 			    .orient('bottom')
-			    .ticks(d3.time.days, 2)
-			    .tickFormat(d3.time.format('%a %d'));
-			    // .tickSize(10)
-			    // .tickPadding(20);
+			    .ticks(d3.time.days, 0)
+			    .tickFormat(d3.time.format(' %a'))
+			    .tickSize(10)
+			    .tickPadding(20);
 			
 			//orient for draw y-line
 			var yAxis = d3.svg.axis()
@@ -162,19 +122,25 @@
 			    .orient('left')
 			    .tickPadding(2);
 
+			d3.select('.chart .d3-tip').remove();
+			var tip = d3.tip()
+				.attr('class', 'd3-tip')
+				.offset([-10, 0])
+				.html(function(d) {
+					var dateFormat = new Date(d.dt*1000) ;
+					str = "<li>" + dateFormat.getUTCFullYear() + "/" + (dateFormat.getMonth()+1) + "/" + dateFormat.getDate() + " " + dateFormat.getHours() + ':' + dateFormat.getMinutes()+"0" +"</li>";
+					return '<img src=http://openweathermap.org/img/w/' + d.weather[0].icon + '.png>' + str;
+			})
+
 			var line = d3.svg.line()
 						    .x(function(d) { return x( new Date(d.dt*1000 )); })
-						    .y(function(d) { return y(d.temp.day-273.15); });
-			var line2 = d3.svg.line()
-						    .x(function(d) { return x( new Date(d.dt*1000 )); })
-						    .y(function(d) { return y(d.temp.night-273.15); });
+						    .y(function(d) { return y( d.main.temp_max-273.15); });
 
-
-			d3.select('#chart *').remove();
-			var svg = d3.select('#chart')
-			    .attr('class', 'chart')
-			    .attr('width', width)
-			    .attr('height', height)
+			d3.select('.chartm *').remove();
+			var svg = d3.select('.chartw')
+			    .attr('class', 'chartw')
+			    .attr('width', width + margin.left + margin.right)
+			    .attr('height', height + margin.top + 3*margin.bottom)
 			  	.append('g')
 			    .attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')');
 
@@ -185,7 +151,6 @@
 				.attr("fill","none")
 				.attr('stroke','coral')
 				.attr('stroke-linecap','round')
-
 		// DOTS
 			svg.selectAll('.circle')
 			    .data(data)
@@ -195,11 +160,10 @@
 				.attr('r',3)
 				.attr('fill', 'red')
 			    .attr('cx', function(d) { return x(new Date(d.dt*1000)); })
-			    .attr('cy', function(d) { return y(d.temp.day - 273.15) })
-			    // .attr('width', 10)
-			    // .attr("cx", function(d) {return x( new Date(d.dt*1000 ))})
-				// .attr("cy", function(d) {return y( d.main.temp-271 );})
-			    .attr('height', function(d) { return height - margin.top - margin.bottom - y(d.total) });
+			    .attr('cy', function(d) { return y(d.main.temp_max-273.15) })
+			    .attr('height', function(d) { return height - margin.top - margin.bottom - y(d.total) })
+			    .on('mouseover', tip.show)
+      			.on('mouseout', tip.hide);
 
 			svg.append("path")
 				.datum(data)
@@ -208,17 +172,6 @@
 				.attr("fill","none")
 				.attr('stroke','coral')
 				.attr('stroke-linecap','round')
-
-			svg.selectAll('.circle2')
-			    .data(data)
-			  	.enter()
-			  	.append('circle')
-			    .attr("class", "circle2")
-				.attr('r',3)
-				.attr('fill', 'blue')
-			    .attr('cx', function(d) { return x(new Date(d.dt*1000)); })
-			    .attr('cy', function(d) { return y(d.temp.night - 273.15) })
-			    .attr('height', function(d) { return height - margin.top - margin.bottom - y(d.total) });
 
 			// draw x-line
 			svg.append('g')
@@ -231,10 +184,112 @@
 				.attr('class', 'y axis')
 				.call(yAxis);
 
+			svg.call(tip);	
 		});
 	});
 
+	// weather for 16 days  
+	$( "#tabMonth" ).click(function() {
+		$.getJSON(weatherUrls.monthUrl, function(data) {
+			
+			var data = data.list;
 
+			var margin = {top: 20, right: 20, bottom: 20, left:20},
+ 				width = 500 - margin.left - margin.right,
+			    height = 300 - margin.top - margin.bottom;
+
+			var x = d3.time.scale()
+			    .range([0, width])
+			  	.domain(d3.extent(data, function(d) { return new Date(d.dt*1000 )}));
+
+			var domain = d3.extent(data, function(d) { return (d.temp.day - 273.15) });
+			
+				domain[0]=domain[0] - 10;
+				domain[1]=domain[1] + 4;
+
+			var y = d3.scale.linear()
+			    .range([height, 0])
+			  	.domain(domain);
+
+			//orient for draw x-line
+			var xAxis = d3.svg.axis()
+			    .scale(x)
+			    .orient('bottom')
+			    .ticks(d3.time.days, 3)
+			    .tickFormat(d3.time.format('%a %d'))
+			    .tickSize(10)
+			    .tickPadding(1);
+			
+			//orient for draw y-line
+			var yAxis = d3.svg.axis()
+			    .scale(y)
+			    .orient('left')
+			    .tickPadding(2);
+
+			var line = d3.svg.line()
+						    .x(function(d) { return x( new Date(d.dt*1000 )); })
+						    .y(function(d) { return y(d.temp.day-273.15); });
+		
+			d3.select('.chartw *').remove();
+			var svg = d3.select('.chartm')
+			    .attr('class', 'chartm')
+			    .attr('width',  width + margin.left + margin.right)
+			    .attr('height', height + margin.top + 3*margin.bottom)
+			  	.append('g')
+			    .attr('transform', 'translate('  + margin.left + ', ' + margin.top +  ')');
+
+			// DOTS +
+			svg.selectAll('.circle')
+			    .data(data)
+			  	.enter()
+			  	.append('circle')
+			    .attr("class", "circle")
+				.attr('r',3)
+				.attr('fill', 'red')
+			    .attr('cx', function(d) { return x(new Date(d.dt*1000)) })
+			    .attr('cy', function(d) { return y(d.temp.day - 273.15) })
+			    .attr('height', function(d) { return height - margin.top - margin.bottom - y(d.total) });
+			//	line +
+			svg.append("path")
+				.datum(data)
+				.attr("class", "line")
+				.attr("d", line)
+				.attr("fill","none")
+				.attr('stroke','red')
+				.attr('stroke-linecap','round')
+			// DOTS -
+			svg.selectAll('.circle2')
+			    .data(data)
+			  	.enter()
+			  	.append('circle')
+			    .attr("class", "circle2")
+				.attr('r',3)
+				.attr('fill', 'blue')
+			    .attr('cx', function(d) { return x(new Date(d.dt*1000)) })
+			    .attr('cy', function(d) { return y(d.temp.night - 273.15) })
+			    .attr('height', function(d) { return height - margin.top - margin.bottom - y(d.total) });
+			//	line -
+			// svg.append("path")
+			// 	.datum(data)
+			// 	.attr("class", "line")
+			// 	.attr("d", line)
+			// 	.attr("fill","none")
+			// 	.attr('stroke','blue')
+			// 	.attr('stroke-linecap','round')
+
+
+			// draw x-line
+			svg.append('g')
+			    .attr('class', 'x axis')
+			    .attr('transform', 'translate(0, ' + (height) + ')')
+			    .call(xAxis);
+
+			// draw y-line
+			svg.append('g')
+				.attr('class', 'y axis')
+				.call(yAxis);
+		});
+	});
 
 </script>
 </body>
