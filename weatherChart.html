@@ -7,35 +7,154 @@
 	<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
 	<script src="jquery-3.1.1.min.js"></script>
 	<script src="jquery-ui.min.js"></script>
-	<link rel="stylesheet" type="text/css" href="style.css">
+
+	<style>
+		* {
+		  margin: 0;
+		  padding: 0;
+		}
+
+		 /*______________________________*/
+		#weather{
+			text-align: center;
+		    border: black solid 1px;
+		    border-radius: 10px;
+		    width: 600px;
+		     height: 500px;
+			margin: auto;    
+			margin-top: 10px;
+			background-color: #eee;
+		}
+
+		li {
+			list-style-type: none;
+		}
+		#navbar li{
+		    height: 40px;
+		    line-height: 2;
+			vertical-align: middle;
+			background-color: black;
+			font-size: 20px;
+			text-decoration: none;
+		    display: inline-block;
+		    width: 28%;
+		    border-radius: 5px;
+		}
+		#navbar li:hover{
+			background-color: grey;
+		}
+		#navbar li:active{
+			background-color: red;
+			font-size: 20px;
+		}
+		#navbar a{
+			text-decoration: none;
+			color: white;
+		}
+		#weather1{
+			color: white;
+		}
+		#header{
+		    margin-top: 10px;
+		    margin-bottom: 10px;
+		}
+		#navbar ul,
+		#navbar h2,
+		#dailyList ul {
+			margin-bottom: 10px;
+		}
+		#dailyList ul li{
+			    background-color: #eee;
+			    display: block;
+			    text-align: center;
+			    margin: 0 auto; 
+			    width: 90%;
+		}
+		.link a {
+		 display: block; 
+		 text-align: center; 
+		 height: 100%; 
+		}
+		 /*______________________________*/
+		#chart{
+			// height: 500px;
+			// width: 500%;
+		}	
+		.axis path, .axis line {
+			fill: none;
+			stroke: #000;
+			shape-rendering: crispEdges;
+		}
+
+		svg{
+			// margin: 30px;
+		}
+		.n img{
+			display: block;
+			margin: 0 auto;
+
+		}
+		 /*______________________________*/
+
+		.d3-tip {
+			line-height: 1;
+			font-weight: bold;
+			padding: 12px;
+			background: rgba(0, 0, 0, 0.8);
+			color: #fff;
+			border-radius: 2px;
+			text-align: center;
+		}
+
+		/* Creates a small triangle extender for the tooltip */
+		.d3-tip:after {
+			box-sizing: border-box;
+			display: inline;
+			font-size: 10px;
+			width: 100%;
+			line-height: 1;
+			color: rgba(0, 0, 0, 0.8);
+			content: "\25BC";
+			position: absolute;
+			text-align: center;
+		}
+
+		/* Style northward tooltips differently */
+		.d3-tip.n:after {
+			margin: -1px 0 0 0;
+			top: 100%;
+			left: 0;
+		}
+		 /*______________________________*/
+	</style>
 </head>
 <body>
 
 <div id="weather">
 
 	<div id="header">
-		<h1>Погода</h1>
+		<h1>Weather</h1>
 	</div>
 	
 	<div id="navbar">
 		<ul>
-			<li class="link" id="tabDay"><a href="#today">Cегодня</a></li>
-			<li class="link" id="tabWeek"><a href="#week">5 дней</a></li>
-			<li class="link" id="tabMonth"><a href="#month">16 дней</a></li>
+			<li class="link" id="tabDay"><a href="#today">Today</a></li>
+			<li class="link" id="tabWeek"><a href="#week">5 days per hour</a></li>
+			<li class="link" id="tabMonth"><a href="#month">16 days</a></li>
 		</ul>
 
 		<div id="today" class="period">
-			<h2>Сегодня</h2>
+			<h2>Today</h2>
 			<div id="dailyList"></div>
 		</div>
 			
 		<div id="week" class="period">
-			<h2>5 дней</h2>
+			<h2>5 days per hour</h2>
 			<svg class="chartw"></svg>
 		</div>
 			
 		<div id="month" class="period">
-			<h2>16 дней</h2>
+			<h2>16 days</h2>
 			<svg class="chartm"></svg>
 		</div>
 	</div>	
@@ -43,17 +162,11 @@
 </div>
 
 <script>
-// круги увеличивающиеся
-// вторая линия
-// https://xakep.ru/2015/04/18/195-d3-js/
-// http://frontender.info/vvedenie-v-djs/
-// https://habrahabr.ru/company/datalaboratory/blog/217905/
-// http://serganbus.github.io/d3tutorials/drawing_svgs.html
-// https://habrahabr.ru/post/312920/
 
 	// nav bar tabs
 	$( function() {
 		$( "#navbar" ).tabs();
+	 	$( "#tabDay" ).click();
 	} );
 
 	// url's container
@@ -87,7 +200,7 @@
 	// weather for 5 days  
 	$( "#tabWeek" ).click(function() {
 		$.getJSON(weatherUrls.weekUrl, function(data) {
-			
+
 			var data = data.list;
 
 			var margin = {top: 20, right: 20, bottom: 20, left:20},
@@ -127,9 +240,9 @@
 				.attr('class', 'd3-tip')
 				.offset([-10, 0])
 				.html(function(d) {
-					var dateFormat = new Date(d.dt*1000) ;
+					var dateFormat = new Date(d.dt*1000);
 					str = "<li>" + dateFormat.getUTCFullYear() + "/" + (dateFormat.getMonth()+1) + "/" + dateFormat.getDate() + " " + dateFormat.getHours() + ':' + dateFormat.getMinutes()+"0" +"</li>";
-					return '<img src=http://openweathermap.org/img/w/' + d.weather[0].icon + '.png>' + str;
+					return '<img src=http://openweathermap.org/img/w/' + d.weather[0].icon + '.png>' +  "<span>" + Math.round(d.main.temp-273.15) + " t&deg"+ "</span>"  + str;
 			})
 
 			var line = d3.svg.line()
@@ -157,13 +270,25 @@
 			  	.enter()
 			  	.append('circle')
 			    .attr("class", "circle")
-				.attr('r',3)
+				.attr('r',4)
 				.attr('fill', 'red')
 			    .attr('cx', function(d) { return x(new Date(d.dt*1000)); })
 			    .attr('cy', function(d) { return y(d.main.temp_max-273.15) })
 			    .attr('height', function(d) { return height - margin.top - margin.bottom - y(d.total) })
-			    .on('mouseover', tip.show)
-      			.on('mouseout', tip.hide);
+	    	    //  .on('mouseover', tip.show)
+      			// .on('mouseout', tip.hide)
+      			.on("mouseover", function(d){
+					d3.select(this).transition()
+						.duration(200)
+		 				.attr("r", 8);
+		 				tip.show(d);
+					})
+				.on("mouseout", function(d){
+					d3.select(this).transition()
+						.duration(200)
+		 				.attr("r", 4);
+		 				tip.hide();
+					});
 
 			svg.append("path")
 				.datum(data)
@@ -226,9 +351,12 @@
 			    .orient('left')
 			    .tickPadding(2);
 
-			var line = d3.svg.line()
+			var dayLine = d3.svg.line()
 						    .x(function(d) { return x( new Date(d.dt*1000 )); })
 						    .y(function(d) { return y(d.temp.day-273.15); });
+			var nightLine = d3.svg.line()
+						    .x(function(d) { return x( new Date(d.dt*1000 )); })
+						    .y(function(d) { return y(d.temp.night-273.15); });
 		
 			d3.select('.chartw *').remove();
 			var svg = d3.select('.chartm')
@@ -253,7 +381,7 @@
 			svg.append("path")
 				.datum(data)
 				.attr("class", "line")
-				.attr("d", line)
+				.attr("d", dayLine)
 				.attr("fill","none")
 				.attr('stroke','red')
 				.attr('stroke-linecap','round')
@@ -268,15 +396,14 @@
 			    .attr('cx', function(d) { return x(new Date(d.dt*1000)) })
 			    .attr('cy', function(d) { return y(d.temp.night - 273.15) })
 			    .attr('height', function(d) { return height - margin.top - margin.bottom - y(d.total) });
-			//	line -
-			// svg.append("path")
-			// 	.datum(data)
-			// 	.attr("class", "line")
-			// 	.attr("d", line)
-			// 	.attr("fill","none")
-			// 	.attr('stroke','blue')
-			// 	.attr('stroke-linecap','round')
-
+				
+			svg.append("path")
+				.datum(data)
+				.attr("class", "line")
+				.attr("d", nightLine)
+				.attr("fill","none")
+				.attr('stroke','blue')
+				.attr('stroke-linecap','round')
 
 			// draw x-line
 			svg.append('g')
@@ -290,6 +417,8 @@
 				.call(yAxis);
 		});
 	});
+
+	
 
 </script>
 </body>
